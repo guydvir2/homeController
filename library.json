@@ -1,0 +1,26 @@
+{
+    "name": "homeController",
+    "version": "0.5",
+    "description": "homeController library including Sw and Windows ESP32/8266",
+    "keywords": "homeController, IOT, Lights",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/guydvir2/homeController"
+    },
+    "authors": [
+        {
+            "name": "guyDvir",
+            "email": "",
+            "url": ""
+        }
+    ],
+    "license": "MIT",
+    "homepage": "https://github.com/guydvir2/homeController",
+    "dependencies": {
+        "myWindowsSW": "https://github.com/guydvir2/myWindowSW",
+        "smartSwitch": "https://github.com/guydvir2/smartSwitch",
+        "mbed-thechrisyd/RCSwitch": "^0.0.0+sha.6f4be1a7962c"
+    },
+    "frameworks": "*",
+    "platforms": "*"
+}
