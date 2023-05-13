@@ -1,6 +1,6 @@
 {
     "name": "homeController",
-    "version": "0.5",
+    "version": "0.6",
     "description": "homeController library including Sw and Windows ESP32/8266",
     "keywords": "homeController, IOT, Lights",
     "repository": {
