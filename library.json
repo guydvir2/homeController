@@ -17,7 +17,7 @@
     "license": "MIT",
     "homepage": "https://github.com/guydvir2/homeController",
     "dependencies": {
-        "myWindowSW": "https://github.com/guydvir2/myWindowSW",
+        "myWindowSW": "https://github.com/guydvir2/myWindowSW#v0.6",
         "smartSwitch": "https://github.com/guydvir2/smartSwitch",
         "rc-switch": "https://github.com/sui77/rc-switch"
     },

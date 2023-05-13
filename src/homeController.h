@@ -5,30 +5,10 @@
 #include <RCSwitch.h>    /* RF Library */
 #include <myWindowSW.h>  /* WinSW Entities */
 #include <smartSwitch.h> /* smartSwitch Entities */
-
-#define MAX_TOPIC_SIZE 40 // <----- Verfy max Topic size
-
-struct Cotroller_Ent_telemetry
-{
-    uint8_t id;    /* of entity instance*/
-    uint8_t type;  /* Entiry type 0- win. 1 sw */
-    uint8_t state; /* Up/Down/ Off */
-    uint8_t trig;  /* What triggered the button */
-
-    bool newMSG = false; /* NewMSG for loop function */
-    unsigned long timeout = 0;
-};
-enum ENT_TYPE : const uint8_t
-{
-    WIN_ENT,
-    SW_ENT
-};
+#include "homeController_defs.h"
 
 class homeCtl
 {
-#define TOT_Relays 8
-#define TOT_Inputs 12
-
 private:
     bool _use_RF = false;
     uint8_t _RFpin = 27;
@@ -40,7 +20,7 @@ private:
     long _RF_freq[TOT_Relays] = {3135496, 3135492, 3135490, 3135489, 255, 255, 255, 255};
 
 public:
-    const char *ver = "smartController_v0.5";
+    const char *ver = "smartController_v0.6a";
 
     const char *SW_MQTT_cmds[2] = {"off", "on"};
     const char *winMQTTcmds[3] = {"off", "up", "down"};
@@ -90,7 +70,7 @@ public:
 
     /* Win & SW callbacks*/
     void Win_switchCB(uint8_t i, uint8_t state);                     /* Win Opertional CB*/
-    void SW_setPosition(uint8_t i, float position);
+    void SW_setPosition(uint8_t i, float position);                  /* Win set Position */
     void SW_switchCB(uint8_t i, uint8_t state, unsigned int TO = 0); /* SW Opertional CB*/
     void Win_init_lockdown();                                        /* Win Lockdown */
     void Win_release_lockdown();                                     /* Win release Lockdown */
