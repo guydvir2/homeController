@@ -90,6 +90,7 @@ public:
 
     /* Win & SW callbacks*/
     void Win_switchCB(uint8_t i, uint8_t state);                     /* Win Opertional CB*/
+    void SW_setPosition(uint8_t i, float position);
     void SW_switchCB(uint8_t i, uint8_t state, unsigned int TO = 0); /* SW Opertional CB*/
     void Win_init_lockdown();                                        /* Win Lockdown */
     void Win_release_lockdown();                                     /* Win release Lockdown */
