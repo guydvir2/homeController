@@ -20,7 +20,7 @@ private:
     long _RF_freq[TOT_Relays] = {3135496, 3135492, 3135490, 3135489, 255, 255, 255, 255};
 
 public:
-    const char *ver = "smartController_v0.6a";
+    const char *ver = "smartController_v0.6b";
 
     const char *SW_MQTT_cmds[2] = {"off", "on"};
     const char *winMQTTcmds[3] = {"off", "up", "down"};
