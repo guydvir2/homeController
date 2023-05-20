@@ -20,7 +20,8 @@ private:
     long _RF_freq[TOT_Relays] = {3135496, 3135492, 3135490, 3135489, 255, 255, 255, 255};
 
 public:
-    const char *ver = "smartController_v0.6b";
+    bool useDebug = false;
+    const char *ver = "smartController_v0.6c";
 
     const char *SW_MQTT_cmds[2] = {"off", "on"};
     const char *winMQTTcmds[3] = {"off", "up", "down"};
@@ -48,7 +49,7 @@ private:
 
 public:
     /* Create entity */
-    homeCtl();
+    homeCtl(bool use_debug = false);
     bool loop();
     void set_RF(uint8_t pin = 255);                                                   /* IO that RF recv is connected to */
     void set_RFch(long arr[], uint8_t arr_size);                                      /* Radio freq. belong to a remote control */

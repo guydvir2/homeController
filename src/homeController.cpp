@@ -1,7 +1,8 @@
 #include "homeController.h"
 
-homeCtl::homeCtl()
+homeCtl::homeCtl(bool use_debug)
 {
+  useDebug = use_debug;
 }
 
 bool homeCtl::loop()
@@ -93,7 +94,7 @@ void homeCtl::create_SW(uint8_t _input_pins[], uint8_t _output_pins[], const cha
     _RF_ch_2_SW[_swEntityCounter] = RF_ch; /* Which _RF_Chanel# goes to SW */
     _init_RF();
   }
-
+  SW_v[_swEntityCounter]->useDebug = useDebug;
   SW_v[_swEntityCounter]->print_preferences();
   _inIOCounter++;
   _swEntityCounter++;
