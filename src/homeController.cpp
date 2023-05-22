@@ -39,7 +39,7 @@ void homeCtl::SW_switchCB(uint8_t i, uint8_t state, unsigned int TO)
 }
 void homeCtl::create_Win(uint8_t _input_pins[], uint8_t _output_pins[], const char *topic, bool is_virtual, bool use_ext_sw)
 {
-  winSW_V[_winEntityCounter] = new WinSW;
+  winSW_V[_winEntityCounter] = new WinSW(useDebug);
   winSW_V[_winEntityCounter]->set_input(_input_pins[_inIOCounter], _input_pins[_inIOCounter + 1]);
   winSW_V[_winEntityCounter]->set_name(topic);
 
@@ -72,11 +72,14 @@ void homeCtl::create_Win(uint8_t _input_pins[], uint8_t _output_pins[], const ch
 }
 void homeCtl::create_SW(uint8_t _input_pins[], uint8_t _output_pins[], const char *topic, uint8_t sw_type, bool is_virtual, int timeout_m, uint8_t RF_ch)
 {
-  SW_v[_swEntityCounter] = new smartSwitch;
+  SW_v[_swEntityCounter] = new smartSwitch(useDebug);
   SW_v[_swEntityCounter]->set_name(topic);
   SW_v[_swEntityCounter]->set_input(_input_pins[_inIOCounter], sw_type); /* input is an option */
   SW_v[_swEntityCounter]->set_id(_swEntityCounter);
   SW_v[_swEntityCounter]->set_timeout(timeout_m);
+
+  Serial.print("INPIN: ");
+  Serial.println(_input_pins[_inIOCounter]);
 
   /* Phsycal or Virtual output ?*/
   if (!is_virtual)
@@ -95,7 +98,7 @@ void homeCtl::create_SW(uint8_t _input_pins[], uint8_t _output_pins[], const cha
     _RF_ch_2_SW[_swEntityCounter] = RF_ch; /* Which _RF_Chanel# goes to SW */
     _init_RF();
   }
-  SW_v[_swEntityCounter]->useDebug = useDebug;
+  // SW_v[_swEntityCounter]->useDebug = useDebug;
   SW_v[_swEntityCounter]->print_preferences();
   _inIOCounter++;
   _swEntityCounter++;
@@ -265,12 +268,17 @@ void homeCtl::clear_telemetryMSG()
   {
     SW_v[_MSG.id]->clear_newMSG();
   }
-  _MSG.timeout = 0;
   _MSG.id = 0;
   _MSG.type = 255;
   _MSG.trig = 255;
   _MSG.state = 255;
+  _MSG.timeout = 0;
   _MSG.newMSG = false;
+  _MSG.lockdown_state = false;
+
+  _MSG.pwm = 0;
+  _MSG.position = 0;
+  _MSG.pressCount = 0;
 }
 
 void homeCtl::_SW_newMSG(uint8_t i)
