@@ -63,6 +63,7 @@ void homeCtl::create_Win(uint8_t _input_pins[], uint8_t _output_pins[], const ch
 
   // <<<<<<<<<<< Init instance  >>>>>>>>>>>>>>
   winSW_V[_winEntityCounter]->set_extras(); /* Timeout & lockdown */
+  winSW_V[_winEntityCounter]->useDebug = useDebug;
   winSW_V[_winEntityCounter]->print_preferences();
 
   // <<<<<<<<< Incrementing Counters >>>>>>>>>>
