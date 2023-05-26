@@ -37,7 +37,8 @@ void homeCtl::SW_switchCB(uint8_t i, uint8_t state, unsigned int TO)
   MQTT_clear_retained(SW_v[i]->name);
 #endif
 }
-void homeCtl::create_Win(uint8_t _input_pins[], uint8_t _output_pins[], const char *topic, bool is_virtual, bool use_ext_sw)
+void homeCtl::create_Win(uint8_t _input_pins[], uint8_t _output_pins[], const char *topic, bool is_virtual, bool use_ext_sw,
+                         float to_to_up, float time_to_down, float stick_time, float end_move_time)
 {
   winSW_V[_winEntityCounter] = new WinSW(useDebug);
   winSW_V[_winEntityCounter]->set_input(_input_pins[_inIOCounter], _input_pins[_inIOCounter + 1]);
@@ -51,6 +52,7 @@ void homeCtl::create_Win(uint8_t _input_pins[], uint8_t _output_pins[], const ch
   else /* Physical Switching input & output */
   {
     winSW_V[_winEntityCounter]->set_output(_output_pins[_outIOCounter], _output_pins[_outIOCounter + 1]);
+    winSW_V[_winEntityCounter]->set_motor_properties(to_to_up, time_to_down, stick_time, end_move_time);
     _outIOCounter += 2;
   }
 
@@ -63,14 +65,14 @@ void homeCtl::create_Win(uint8_t _input_pins[], uint8_t _output_pins[], const ch
 
   // <<<<<<<<<<< Init instance  >>>>>>>>>>>>>>
   winSW_V[_winEntityCounter]->set_extras(); /* Timeout & lockdown */
-  winSW_V[_winEntityCounter]->useDebug = useDebug;
   winSW_V[_winEntityCounter]->print_preferences();
 
   // <<<<<<<<< Incrementing Counters >>>>>>>>>>
   _winEntityCounter++;
   _inIOCounter += 2;
 }
-void homeCtl::create_SW(uint8_t _input_pins[], uint8_t _output_pins[], const char *topic, uint8_t sw_type, bool is_virtual, int timeout_m, uint8_t RF_ch)
+void homeCtl::create_SW(uint8_t _input_pins[], uint8_t _output_pins[], const char *topic, uint8_t sw_type,
+                        bool is_virtual, int timeout_m, uint8_t RF_ch)
 {
   SW_v[_swEntityCounter] = new smartSwitch(useDebug);
   SW_v[_swEntityCounter]->set_name(topic);
@@ -208,6 +210,11 @@ void homeCtl::set_RFch(long arr[], uint8_t arr_size)
 void homeCtl::set_RF(uint8_t pin)
 {
   _RFpin = pin;
+}
+void homeCtl::Win_setPosition(uint8_t i, float position)
+{
+  winSW_V[i]->set_Win_position(position);
+  /* need to update state */
 }
 
 void homeCtl::Win_init_lockdown()

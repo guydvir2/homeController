@@ -55,7 +55,8 @@ public:
     void set_RFch(long arr[], uint8_t arr_size);                                      /* Radio freq. belong to a remote control */
     void set_ent_name(uint8_t i, uint8_t ent_type, const char *name);                 /* Entity Name (SW or Win) */
     void create_Win(uint8_t _input_pins[], uint8_t _output_pins[], const char *topic, /* Create Win ent */
-                    bool is_virtual = false, bool use_ext_sw = false);
+                    bool is_virtual = false, bool use_ext_sw = false, float to_to_up = 100, 
+                    float time_to_down = 100, float stick_time = 0.5, float end_move_time = 0.5);
     void create_SW(uint8_t _input_pins[], uint8_t _output_pins[], const char *topic, /* Create SW ent */
                    uint8_t sw_type, bool is_virtual = false, int timeout_m = 1, uint8_t RF_ch = 255);
 
@@ -71,7 +72,7 @@ public:
 
     /* Win & SW callbacks*/
     void Win_switchCB(uint8_t i, uint8_t state);                     /* Win Opertional CB*/
-    void SW_setPosition(uint8_t i, float position);                  /* Win set Position */
+    void Win_setPosition(uint8_t i, float position);                  /* Win set Position */
     void SW_switchCB(uint8_t i, uint8_t state, unsigned int TO = 0); /* SW Opertional CB*/
     void Win_init_lockdown();                                        /* Win Lockdown */
     void Win_release_lockdown();                                     /* Win release Lockdown */
