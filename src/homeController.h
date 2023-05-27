@@ -6,22 +6,17 @@
 #include <myWindowSW.h>  /* WinSW Entities */
 #include <smartSwitch.h> /* smartSwitch Entities */
 #include "homeController_defs.h"
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
 class homeCtl
 {
 private:
-    bool _use_RF = false;
-    uint8_t _RFpin = 27;
-    uint8_t _inIOCounter = 0;
-    uint8_t _outIOCounter = 0;
-    uint8_t _swEntityCounter = 0;
-    uint8_t _winEntityCounter = 0;
-    uint8_t _RF_ch_2_SW[TOT_Relays] = {255, 255, 255, 255, 255, 255, 255, 255};
-    long _RF_freq[TOT_Relays] = {3135496, 3135492, 3135490, 3135489, 255, 255, 255, 255};
-
+    RF_defs RFdefs;
+    IOcounter ioCounter;
+    EntitiesCounter entCounter;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
 public:
     bool useDebug = false;
-    const char *ver = "smartController_v0.6c";
+    const char *ver = "smartController_v0.65a";
 
     const char *SW_MQTT_cmds[2] = {"off", "on"};
     const char *winMQTTcmds[3] = {"off", "up", "down"};
@@ -40,12 +35,10 @@ private:
     void _init_RF();
     void _toggle_SW_RF(uint8_t i);
 
-    void _SW_newMSG(uint8_t i);
-    void _Win_newMSG(uint8_t i);
-
     void _RF_loop();
     void _SW_loop();
     void _Win_loop();
+    void _newMSG(uint8_t i, uint8_t ent);
 
 public:
     /* Create entity */
@@ -55,7 +48,7 @@ public:
     void set_RFch(long arr[], uint8_t arr_size);                                      /* Radio freq. belong to a remote control */
     void set_ent_name(uint8_t i, uint8_t ent_type, const char *name);                 /* Entity Name (SW or Win) */
     void create_Win(uint8_t _input_pins[], uint8_t _output_pins[], const char *topic, /* Create Win ent */
-                    bool is_virtual = false, bool use_ext_sw = false, float to_to_up = 100, 
+                    bool is_virtual = false, bool use_ext_sw = false, float to_to_up = 100,
                     float time_to_down = 100, float stick_time = 0.5, float end_move_time = 0.5);
     void create_SW(uint8_t _input_pins[], uint8_t _output_pins[], const char *topic, /* Create SW ent */
                    uint8_t sw_type, bool is_virtual = false, int timeout_m = 1, uint8_t RF_ch = 255);
@@ -72,7 +65,7 @@ public:
 
     /* Win & SW callbacks*/
     void Win_switchCB(uint8_t i, uint8_t state);                     /* Win Opertional CB*/
-    void Win_setPosition(uint8_t i, float position);                  /* Win set Position */
+    void Win_switchCB(uint8_t i, float position);                    /* Win set Position */
     void SW_switchCB(uint8_t i, uint8_t state, unsigned int TO = 0); /* SW Opertional CB*/
     void Win_init_lockdown();                                        /* Win Lockdown */
     void Win_release_lockdown();                                     /* Win release Lockdown */

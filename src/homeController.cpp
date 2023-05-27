@@ -10,7 +10,7 @@ bool homeCtl::loop()
   _SW_loop();
   _Win_loop();
 
-  if (_use_RF)
+  if (RFdefs.useRF)
   {
     _RF_loop();
   }
@@ -22,6 +22,11 @@ void homeCtl::Win_switchCB(uint8_t i, uint8_t state)
 #if RETAINED_MSG
   MQTT_clear_retained(winSW_V[i]->name);
 #endif
+}
+void homeCtl::Win_switchCB(uint8_t i, float position)
+{
+  winSW_V[i]->set_Win_position(position);
+  /* need to update state */
 }
 void homeCtl::SW_switchCB(uint8_t i, uint8_t state, unsigned int TO)
 {
@@ -40,74 +45,70 @@ void homeCtl::SW_switchCB(uint8_t i, uint8_t state, unsigned int TO)
 void homeCtl::create_Win(uint8_t _input_pins[], uint8_t _output_pins[], const char *topic, bool is_virtual, bool use_ext_sw,
                          float to_to_up, float time_to_down, float stick_time, float end_move_time)
 {
-  winSW_V[_winEntityCounter] = new WinSW(useDebug);
-  winSW_V[_winEntityCounter]->set_input(_input_pins[_inIOCounter], _input_pins[_inIOCounter + 1]);
-  winSW_V[_winEntityCounter]->set_name(topic);
+  winSW_V[entCounter.win] = new WinSW(useDebug);
+  winSW_V[entCounter.win]->set_input(_input_pins[ioCounter.inputs], _input_pins[ioCounter.inputs + 1]);
+  winSW_V[entCounter.win]->set_name(topic);
 
   // <<<<<<<<<<< Define input and output pins >>>>>>>>>>>>>>
   if (is_virtual) /* a virtCMD on output */
   {
-    winSW_V[_winEntityCounter]->set_output(); /* empty definition --> virtCMD */
+    winSW_V[entCounter.win]->set_output(); /* empty definition --> virtCMD */
   }
   else /* Physical Switching input & output */
   {
-    winSW_V[_winEntityCounter]->set_output(_output_pins[_outIOCounter], _output_pins[_outIOCounter + 1]);
-    winSW_V[_winEntityCounter]->set_motor_properties(to_to_up, time_to_down, stick_time, end_move_time);
-    _outIOCounter += 2;
+    winSW_V[entCounter.win]->set_output(_output_pins[ioCounter.outputs], _output_pins[ioCounter.outputs + 1]);
+    winSW_V[entCounter.win]->set_motor_properties(to_to_up, time_to_down, stick_time, end_move_time);
+    ioCounter.outputs += 2;
   }
 
   // <<<<<<<<<<< Define Ext_input pins , if needed >>>>>>>>>>>>>>
-  if (use_ext_sw) /* define a Secondary input for a window */
+  if (use_ext_sw)
   {
-    winSW_V[_winEntityCounter]->set_ext_input(_input_pins[_inIOCounter + 2], _input_pins[_inIOCounter + 3]);
-    _inIOCounter += 2;
+    winSW_V[entCounter.win]->set_ext_input(_input_pins[ioCounter.inputs + 2], _input_pins[ioCounter.inputs + 3]);
+    ioCounter.inputs += 2;
   }
 
   // <<<<<<<<<<< Init instance  >>>>>>>>>>>>>>
-  winSW_V[_winEntityCounter]->set_extras(); /* Timeout & lockdown */
-  winSW_V[_winEntityCounter]->print_preferences();
+  winSW_V[entCounter.win]->set_extras(); /* Timeout & lockdown */
+  winSW_V[entCounter.win]->print_preferences();
 
   // <<<<<<<<< Incrementing Counters >>>>>>>>>>
-  _winEntityCounter++;
-  _inIOCounter += 2;
+  entCounter.win++;
+  ioCounter.inputs += 2;
 }
 void homeCtl::create_SW(uint8_t _input_pins[], uint8_t _output_pins[], const char *topic, uint8_t sw_type,
                         bool is_virtual, int timeout_m, uint8_t RF_ch)
 {
-  SW_v[_swEntityCounter] = new smartSwitch(useDebug);
-  SW_v[_swEntityCounter]->set_name(topic);
-  SW_v[_swEntityCounter]->set_input(_input_pins[_inIOCounter], sw_type); /* input is an option */
-  SW_v[_swEntityCounter]->set_id(_swEntityCounter);
-  SW_v[_swEntityCounter]->set_timeout(timeout_m);
-
-  Serial.print("INPIN: ");
-  Serial.println(_input_pins[_inIOCounter]);
+  SW_v[entCounter.sw] = new smartSwitch(useDebug);
+  SW_v[entCounter.sw]->set_name(topic);
+  SW_v[entCounter.sw]->set_input(_input_pins[ioCounter.inputs], sw_type); /* input is an option */
+  SW_v[entCounter.sw]->set_id(entCounter.sw);
+  SW_v[entCounter.sw]->set_timeout(timeout_m);
 
   /* Phsycal or Virtual output ?*/
   if (!is_virtual)
   {
-    SW_v[_swEntityCounter]->set_output(_output_pins[_outIOCounter]);
-    _outIOCounter++;
+    SW_v[entCounter.sw]->set_output(_output_pins[ioCounter.outputs]);
+    ioCounter.outputs++;
   }
   else
   {
-    SW_v[_swEntityCounter]->set_output();
+    SW_v[entCounter.sw]->set_output();
   }
 
   /* Assign RF to SW */
-  if (_RF_freq[RF_ch] != 255) /* Make sure freq is valid */
+  if (RFdefs.freq[RF_ch] != 255) /* Make sure freq is valid */
   {
-    _RF_ch_2_SW[_swEntityCounter] = RF_ch; /* Which _RF_Chanel# goes to SW */
+    RFdefs.ch2SW[entCounter.sw] = RF_ch; /* Which _RF_Chanel# goes to SW */
     _init_RF();
   }
-  // SW_v[_swEntityCounter]->useDebug = useDebug;
-  SW_v[_swEntityCounter]->print_preferences();
-  _inIOCounter++;
-  _swEntityCounter++;
+  SW_v[entCounter.sw]->print_preferences();
+  ioCounter.inputs++;
+  entCounter.sw++;
 }
 bool homeCtl::get_useRF()
 {
-  return _use_RF;
+  return RFdefs.useRF;
 }
 const char *homeCtl::get_ent_ver(uint8_t type)
 {
@@ -128,11 +129,11 @@ uint8_t homeCtl::get_ent_counter(uint8_t type)
 {
   if (type == WIN_ENT)
   {
-    return _winEntityCounter;
+    return entCounter.win;
   }
   else if (type == SW_ENT)
   {
-    return _swEntityCounter;
+    return entCounter.sw;
   }
   else
   {
@@ -204,29 +205,24 @@ void homeCtl::set_RFch(long arr[], uint8_t arr_size)
 {
   for (uint8_t i = 0; i < arr_size; i++)
   {
-    _RF_freq[i] = arr[i];
+    RFdefs.freq[i] = arr[i];
   }
 }
 void homeCtl::set_RF(uint8_t pin)
 {
-  _RFpin = pin;
-}
-void homeCtl::Win_setPosition(uint8_t i, float position)
-{
-  winSW_V[i]->set_Win_position(position);
-  /* need to update state */
+  RFdefs.pin = pin;
 }
 
 void homeCtl::Win_init_lockdown()
 {
-  for (uint8_t i = 0; i < _winEntityCounter; i++)
+  for (uint8_t i = 0; i < entCounter.win; i++)
   {
     winSW_V[i]->init_lockdown();
   }
 }
 void homeCtl::Win_release_lockdown()
 {
-  for (uint8_t i = 0; i < _winEntityCounter; i++)
+  for (uint8_t i = 0; i < entCounter.win; i++)
   {
     winSW_V[i]->release_lockdown();
   }
@@ -275,6 +271,7 @@ void homeCtl::clear_telemetryMSG()
   {
     SW_v[_MSG.id]->clear_newMSG();
   }
+
   _MSG.id = 0;
   _MSG.type = 255;
   _MSG.trig = 255;
@@ -287,43 +284,42 @@ void homeCtl::clear_telemetryMSG()
   _MSG.position = 0;
   _MSG.pressCount = 0;
 }
-
-void homeCtl::_SW_newMSG(uint8_t i)
+void homeCtl::_newMSG(uint8_t i, uint8_t ent)
 {
   _MSG.id = i;
-  _MSG.type = SW_ENT;
+  _MSG.type = ent;
   _MSG.newMSG = true;
-  _MSG.state = SW_v[i]->telemtryMSG.state;
-  _MSG.trig = SW_v[i]->telemtryMSG.reason;
-  _MSG.timeout = SW_v[i]->telemtryMSG.clk_end;
-}
-void homeCtl::_Win_newMSG(uint8_t i)
-{
-  _MSG.id = i;
-  _MSG.type = WIN_ENT;
-  _MSG.newMSG = true;
-  _MSG.state = winSW_V[i]->MSG.state;
-  _MSG.trig = winSW_V[i]->MSG.reason;
-  _MSG.timeout = 0;
+  if (ent == SW_ENT)
+  {
+    _MSG.state = SW_v[i]->telemtryMSG.state;
+    _MSG.trig = SW_v[i]->telemtryMSG.reason;
+    _MSG.timeout = SW_v[i]->telemtryMSG.clk_end;
+  }
+  else
+  {
+    _MSG.state = winSW_V[i]->MSG.state;
+    _MSG.trig = winSW_V[i]->MSG.reason;
+    _MSG.timeout = 0;
+  }
 }
 
 void homeCtl::_SW_loop()
 {
-  for (uint8_t i = 0; i < _swEntityCounter; i++)
+  for (uint8_t i = 0; i < entCounter.sw; i++)
   {
     if (SW_v[i]->loop())
     {
-      _SW_newMSG(i);
+      _newMSG(i, SW_ENT);
     }
   }
 }
 void homeCtl::_Win_loop()
 {
-  for (uint8_t x = 0; x < _winEntityCounter; x++)
+  for (uint8_t x = 0; x < entCounter.win; x++)
   {
     if (winSW_V[x]->loop())
     {
-      _Win_newMSG(x);
+      _newMSG(x, WIN_ENT);
     }
   }
 }
@@ -333,13 +329,13 @@ void homeCtl::_RF_loop()
   {
     static unsigned long lastEntry = 0;
 
-    for (uint8_t i = 0; i < sizeof(_RF_freq) / sizeof(_RF_freq[0]); i++)
+    for (uint8_t i = 0; i < sizeof(RFdefs.freq) / sizeof(RFdefs.freq[0]); i++)
     {
-      if (_RF_freq[i] == RF_v->getReceivedValue() && millis() - lastEntry > 300)
+      if (RFdefs.freq[i] == RF_v->getReceivedValue() && millis() - lastEntry > 300)
       {
-        for (uint8_t x = 0; x < _swEntityCounter; x++) /* choose the right switch to the received code */
+        for (uint8_t x = 0; x < entCounter.sw; x++) /* choose the right switch to the received code */
         {
-          if (_RF_ch_2_SW[x] == i)
+          if (RFdefs.ch2SW[x] == i)
           {
             _toggle_SW_RF(x);
             lastEntry = millis();
@@ -353,11 +349,11 @@ void homeCtl::_RF_loop()
 
 void homeCtl::_init_RF()
 {
-  if (_RF_ch_2_SW[_swEntityCounter] != 255 && RF_v == nullptr && _RFpin != 255)
+  if (RFdefs.ch2SW[entCounter.sw] != 255 && RF_v == nullptr && RFdefs.pin != 255)
   {
-    _use_RF = true;
+    RFdefs.useRF = true;
     RF_v = new RCSwitch();
-    RF_v->enableReceive(_RFpin);
+    RF_v->enableReceive(RFdefs.pin);
     Serial.println(F(" >>> RF services started <<<"));
   }
 }

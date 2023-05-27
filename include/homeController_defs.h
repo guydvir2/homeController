@@ -20,6 +20,23 @@ struct Cotroller_Ent_telemetry
     // Window only fields //
     float position = 200; /* Open position 0-100 */
 };
+struct EntitiesCounter
+{
+    uint8_t sw = 0;
+    uint8_t win = 0;
+};
+struct IOcounter
+{
+    uint8_t inputs = 0;
+    uint8_t outputs = 0;
+};
+struct RF_defs
+{
+    uint8_t pin = 255;
+    bool useRF = false;
+    uint8_t ch2SW[TOT_Relays] = {255, 255, 255, 255, 255, 255, 255, 255};
+    long freq[TOT_Relays] = {3135496, 3135492, 3135490, 3135489, 255, 255, 255, 255};
+};
 enum ENT_TYPE : const uint8_t
 {
     WIN_ENT,
