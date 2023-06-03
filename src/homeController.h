@@ -16,7 +16,7 @@ private:
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 public:
     bool useDebug = false;
-    const char *ver = "smartController_v0.65a";
+    const char *ver = "smartController_v0.65b";
 
     const char *SW_MQTT_cmds[2] = {"off", "on"};
     const char *winMQTTcmds[3] = {"off", "up", "down"};
@@ -65,7 +65,7 @@ public:
 
     /* Win & SW callbacks*/
     void Win_switchCB(uint8_t i, uint8_t state);                     /* Win Opertional CB*/
-    void Win_switchCB(uint8_t i, float position);                    /* Win set Position */
+    void Win_switchCB(uint8_t i, float position, uint8_t source);                    /* Win set Position */
     void SW_switchCB(uint8_t i, uint8_t state, unsigned int TO = 0); /* SW Opertional CB*/
     void Win_init_lockdown();                                        /* Win Lockdown */
     void Win_release_lockdown();                                     /* Win release Lockdown */

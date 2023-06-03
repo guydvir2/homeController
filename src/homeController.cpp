@@ -23,9 +23,9 @@ void homeCtl::Win_switchCB(uint8_t i, uint8_t state)
   MQTT_clear_retained(winSW_V[i]->name);
 #endif
 }
-void homeCtl::Win_switchCB(uint8_t i, float position)
+void homeCtl::Win_switchCB(uint8_t i, float position, uint8_t source)
 {
-  winSW_V[i]->set_Win_position(position);
+  winSW_V[i]->set_Win_position(position, source);
   /* need to update state */
 }
 void homeCtl::SW_switchCB(uint8_t i, uint8_t state, unsigned int TO)
@@ -294,12 +294,18 @@ void homeCtl::_newMSG(uint8_t i, uint8_t ent)
     _MSG.state = SW_v[i]->telemtryMSG.state;
     _MSG.trig = SW_v[i]->telemtryMSG.reason;
     _MSG.timeout = SW_v[i]->telemtryMSG.clk_end;
+    _MSG.lockdown_state = SW_v[i]->telemtryMSG.lockdown;
+    _MSG.pwm = SW_v[i]->telemtryMSG.pwm;
+    _MSG.pressCount = SW_v[i]->telemtryMSG.pressCount;
+
   }
   else
   {
     _MSG.state = winSW_V[i]->MSG.state;
     _MSG.trig = winSW_V[i]->MSG.reason;
-    _MSG.timeout = 0;
+    _MSG.position = winSW_V[i]->MSG.position;
+    _MSG.lockdown_state = winSW_V[i]->MSG.lockdown_state;
+    _MSG.timeout = 0; /* probably not rlevant anymore*/
   }
 }
 
